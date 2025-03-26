@@ -1,0 +1,45 @@
+
+
+LIST P=16F84A    ; Especificamos el modelo del PIC
+#include <P16F84A.INC>  ; Archivo de inclusión con definiciones
+
+__CONFIG _CP_OFF & _WDT_OFF & _PWRTE_ON & _XT_OSC  ; Configuración de bits
+
+ORG 0x00         ; Dirección de inicio del código
+GOTO START       ; Saltar a la etiqueta START
+
+
+START:
+    BSF STATUS, RP0  ; Cambiar a banco 1
+    CLRF TRISB       ; Configurar PORTB como salida
+    BCF STATUS, RP0  ; Volver a banco 0
+
+
+LOOP:
+    BSF PORTB, 0     ; Encender LED en RB0
+    CALL DELAY       ; Llamar rutina de retardo
+    BCF PORTB, 0     ; Apagar LED en RB0
+    CALL DELAY       ; Llamar rutina de retardo
+    GOTO LOOP        ; Repetir bucle
+
+DELAY:
+    MOVLW 0xC7       ; Cargar valor en W
+    MOVWF COUNT1     ; Guardarlo en COUNT1
+D1:
+    MOVLW 0xFF       ; Cargar otro valor en W
+    MOVWF COUNT2     ; Guardarlo en COUNT2
+D2:
+    DECFSZ COUNT2, F ; Decrementar COUNT2
+    GOTO D2          ; Si no es 0, repetir
+    DECFSZ COUNT1, F ; Decrementar COUNT1
+    GOTO D1          ; Si no es 0, repetir
+    RETURN           ; Regresar de la subrutina
+
+
+    CBLOCK 0x0C
+        COUNT1
+        COUNT2
+    ENDC
+
+END 
+}
